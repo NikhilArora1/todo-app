@@ -1,0 +1,50 @@
+.footer {
+    height: 32px;
+    background-color:#777a92;
+    color: #25273c;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px 6px 8px;
+}
+
+.link:hover {
+    color: white;
+}
+
+.small-footer {
+    display: none;
+}
+
+@media only screen and (max-width: 700px) {
+    .footer {
+        display: none;
+    }
+
+    .small-footer {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .todo-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 8px;
+        height: 40px;
+        background-color:#777a92;
+        color: #25273c;
+    }
+
+    .filter {
+        text-align: center;
+        margin-top: 16px;
+        height: 40px;
+        background-color:#777a92;
+        color: #25273c;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
