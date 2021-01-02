@@ -7,6 +7,9 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Checkbox from '@material-ui/core/Checkbox';
 import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
+import { connect } from 'react-redux';
+import * as todoActions from '../redux/actions/todoActions';
+import { FILTERS } from '../redux/contants';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -31,59 +34,60 @@ const useStyles = makeStyles(() => ({
     }
 }));
 
-export default function TodoList(props) {
+function TodoList(props) {
     const classes = useStyles();
-    const filteredTodos = props.todos.items.filter(todo => {
-        if (props.todos.filter === 'Active') {
+
+    return (
+        <div>
+            {props.items && props.items.length ? 
+            <List className={classes.root}>
+                {props.items.map((todo) => {
+                    const labelId = `checkbox-list-label-${todo.id}`;
+                    const color = todo.completed ? classes.completed : classes.pending;
+
+                    return (
+                        <ListItem key={todo.id} dense button onClick={() => props.toggleTodo(todo.id)}>
+                            <ListItemIcon>
+                                <Checkbox
+                                    edge="start"
+                                    checked={todo.completed}
+                                    tabIndex={-1}
+                                />
+                            </ListItemIcon>
+                            <ListItemText id={labelId} primary={todo.text} className={color} />
+                            <ListItemSecondaryAction>
+                                <IconButton edge="end" aria-label="clear" onClick={() => props.deleteTodo(todo.id)}>
+                                    <ClearIcon />
+                                </IconButton>
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                    );
+                })}
+            </List>
+            : 'No items left'}
+        </div>
+
+    )
+}
+
+function mapStateToProps(state) {
+    const items = state.items.filter(todo => {
+        if (state.filter === FILTERS.ACTIVE) {
             return !todo.completed;
-        } else if (props.todos.filter === 'Completed') {
+        } else if (state.filter === FILTERS.COMPLETED) {
             return todo.completed;
         } else {
             return todo;
         }
     });
-
-    const handleToggle = (value) => () => {
-        let updatedTodos = props.todos.items.filter(todo => todo.id !== value.id);
-        updatedTodos = [
-            ...updatedTodos,
-            {
-                ...value,
-                completed: !value.completed
-            }
-        ];
-        props.updateTodos(updatedTodos);
-    };
-
-    const removeTodo = (value) => () => {
-        const updatedTodos = props.todos.items.filter(todo => todo.id !== value.id);
-        props.updateTodos(updatedTodos);
-    }
-
-    return (
-        <List className={classes.root}>
-            {filteredTodos.map((todo) => {
-                const labelId = `checkbox-list-label-${todo.id}`;
-                const color = todo.completed ? classes.completed : classes.pending;
-
-                return (
-                    <ListItem key={todo.id} dense button onClick={handleToggle(todo)}>
-                        <ListItemIcon>
-                            <Checkbox
-                                edge="start"
-                                checked={todo.completed}
-                                tabIndex={-1}
-                            />
-                        </ListItemIcon>
-                        <ListItemText id={labelId} primary={todo.text} className={color} />
-                        <ListItemSecondaryAction>
-                            <IconButton edge="end" aria-label="clear" onClick={removeTodo(todo)}>
-                                <ClearIcon />
-                            </IconButton>
-                        </ListItemSecondaryAction>
-                    </ListItem>
-                );
-            })}
-        </List>
-    )
+    return { items }
 }
+
+function mapDispatchToProps(dispatch) {
+    return {
+        toggleTodo: id => dispatch(todoActions.toggleTodo(id)),
+        deleteTodo: id => dispatch(todoActions.deleteTodo(id))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoList);
